@@ -1,0 +1,30 @@
+
+//生成jar包的名字
+def SDK_BASENAME = "pxzdialog"
+//jar的路径
+def sdkDestinationPath = "build/libs/"
+//jar之前存放的位置
+def zipFile = file('build/intermediates/packaged-classes/debug/classes.jar')
+//删除已经存在的jar包
+task deleteBuild(type: Delete) {
+    delete sdkDestinationPath + SDK_BASENAME + ".jar"
+}
+
+task makeJar(type: Jar) {
+    from zipTree(zipFile)
+    //main下除java的其他工程
+    from fileTree(dir: 'src/main',includes: ['res/**',
+                                             'jniLibs/**',
+                                             'AndroidManifest.xml',
+                                             'proguard-project.txt',
+                                             'project.properties',
+                                             '.classpath',
+                                             '.project'])
+    //将java文件夹下
+    from fileTree(dir: 'src/main/java',
+            includes: ['bin/**','doc/**'])
+    baseName = SDK_BASENAME
+    destinationDir = file(sdkDestinationPath)
+}
+
+makeJar.dependsOn(deleteBuild, build)
